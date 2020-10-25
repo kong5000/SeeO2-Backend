@@ -3,6 +3,12 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser")
 const axios = require("axios")
+const { Pool } = require('pg');
+const db = new Pool({
+  connectionString: process.env.DB_URL
+})
+db.connect()
+const queries = require('../db/query');
 
 const PORT = 3001
 
@@ -40,7 +46,13 @@ app.get("/:id", async (req, res) => {
 
 //Get historical sensor data
 app.get("/:id/history", async (req, res) => {
-  //Database access required here
+  queries.selectSensorData(db, {sensors_id: req.params.id})
+  .then((results)=>{
+    res.send(results)
+  })
+  .catch((err)=>{
+    res.send(err)
+  })
 })
 
 app.listen(PORT, async () => {
