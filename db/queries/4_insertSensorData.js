@@ -1,4 +1,4 @@
-const selectSensorData = (db, options) => {
+const insertSensorData = (db, options) => {
   return db.query(`
     INSERT INTO sensor_data(sensors_id, co2, tvoc)
     VALUES ($1, $2, $3);
@@ -6,4 +6,4 @@ const selectSensorData = (db, options) => {
   .then((res) => res.rows)
 };
 
-module.exports = selectSensorData;
+module.exports = insertSensorData;
