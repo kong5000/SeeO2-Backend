@@ -9,6 +9,7 @@ const db = new Pool({
 })
 db.connect()
 const queries = require('../db/query');
+const { response } = require('express');
 
 const PORT = 8001
 
@@ -56,14 +57,46 @@ app.get("/:id/history", async (req, res) => {
 })
 
 app.listen(PORT, async () => {
-  console.log(`Server listening on port ${PORT}!`)
-  //Maybe some code here to periodically read arduino sensors and update the database
-  const sensorResponse = await axios.get("https://arduinokeith123.loca.lt", { timeout: 3000 })
-  queries.insertSensorData(db, {sensors_id: 1, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc})
+  console.log(`Server listening on port ${PORT}!\n`)
+  
+  queries.selectAllSensors(db)
   .then((response)=>{
-    console.log(response)
-  })
-  .catch((err)=>{
-    console.log(err)
+    //Query each sensor
+    response.forEach(sensor => {
+      querySensor(sensor);
+    });
   })
 });
+
+const querySensor = async (sensor)=>{
+  console.log(`Connecting to ${sensor.name}'s sensor at ${sensor.url}...\n`)
+  
+  axios.get(sensor.url, { timeout: 3000 })
+  .then((sensorResponse)=>{
+    //Insert the response data to the database
+    console.log(`Successfully connected to ${sensor.name}'s sensor at ${sensor.url}. Querying and inserting data...\n`)
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc})
+    .then((response)=>{
+      console.log(`Successfully inserted data: Co2:${sensorResponse.data.co2} Tvoc:${sensorResponse.data.tvoc}\n`)
+    })
+    .catch((err)=>{
+      console.log(`Failed inserting data:\n-----Response:-----\n ${err}\n`)
+    })
+
+    //If the co2 level is to high, alert users
+    if(sensorResponse.data.co2 > 200){
+      console.log('Co2 levels to high, alerting users...')
+      queries.selectSensorAlerts(db, {sensors_id: 1})
+      .then((response)=>{
+        //Will email users
+        console.log(response);
+      })
+      .catch((err)=>{
+        console.log(err);
+      })
+    }
+  })
+  .catch((err)=>{
+    console.log(`Failed to connect to ${sensor.name}'s sensor at ${sensor.url}\n-----Response:-----\n ${err}\n`)
+  })
+}
