@@ -10,7 +10,7 @@ const db = new Pool({
 db.connect()
 const queries = require('../db/query');
 
-const PORT = 3001
+const PORT = 8001
 
 //Get latest sensor reading
 //Hard coded switch statement will work for small number of arduinos. Need to refactor if registering new sensor stretch goal is desired.
@@ -58,4 +58,12 @@ app.get("/:id/history", async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}!`)
   //Maybe some code here to periodically read arduino sensors and update the database
+  const sensorResponse = await axios.get("https://arduinokeith123.loca.lt", { timeout: 3000 })
+  queries.insertSensorData(db, {sensors_id: 1, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc})
+  .then((response)=>{
+    console.log(response)
+  })
+  .catch((err)=>{
+    console.log(err)
+  })
 });
