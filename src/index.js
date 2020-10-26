@@ -14,8 +14,8 @@ const nodeMailer = require('nodemailer');
 const transporter = nodeMailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'jaydenrtucker@gmail.com',
-    pass: 'PASSWORD GOES HERE NO THIS IS NOT MY PASSWORD'
+    user: 'SeeO2AirQuality@gmail.com',
+    pass: process.env.EMAIL_PASS
   }
 });
 const chalk = require('chalk');
@@ -78,7 +78,7 @@ app.listen(PORT, async () => {
         querySensor(sensor);
       });
     })
-  }, 600000)
+  }, 6000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -130,9 +130,9 @@ const querySensor = async (sensor)=>{
 //Email users taht the co2 levels are bad
 const emailUser = (user)=>{
   const mailOptions = {
-    from: 'jaydenrtucker@gmail.com',
+    from: 'SeeO2AirQuality@gmail.com',
     to: user.email,
-    subject: 'Chinese communist party',
+    subject: 'Air quality has dropped',
     html: `<h1>BAD AIR</h1>`
   };
   transporter.sendMail(mailOptions, (error, info)=>{
