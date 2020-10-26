@@ -19,8 +19,18 @@ const transporter = nodeMailer.createTransport({
   }
 });
 const chalk = require('chalk');
+const io = require('socket.io')(8002);
 
-const PORT = 8001
+const PORT = 8001;
+
+io.on('connect', (socket)=>{
+
+  console.log('SENDING INFO TO KNEW FREND :)');
+  queries.selectAllSensors(db)
+  .then((response)=>{
+    socket.emit("SendSensors",response);
+  })
+})
 
 //Get latest sensor reading
 //Hard coded switch statement will work for small number of arduinos. Need to refactor if registering new sensor stretch goal is desired.
@@ -78,7 +88,7 @@ app.listen(PORT, async () => {
         querySensor(sensor);
       });
     })
-  }, 6000)
+  }, 600000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
