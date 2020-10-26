@@ -15,7 +15,8 @@ CREATE TABLE sensors (
   latitude FLOAT NOT NULL,
   longitude FLOAT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
-  users_id INTEGER REFERENCES users(id) ON DELETE CASCADE
+  users_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  safe BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE sensor_data (

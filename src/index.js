@@ -15,7 +15,7 @@ const transporter = nodeMailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'jaydenrtucker@gmail.com',
-    pass: process.argv[3]
+    pass: 'PASSWORD GOES HERE NO THIS IS NOT MY PASSWORD'
   }
 });
 const chalk = require('chalk');
@@ -104,15 +104,22 @@ const querySensor = async (sensor)=>{
 
       queries.selectSensorAlerts(db, {sensors_id: sensor.id})
       .then((response)=>{
-        //Will email users
-        response.forEach((user)=>{
-          emailUser(user)
-        })
+        //Will email users if they haven't been already
+        if(sensor.safe){
+          response.forEach((user)=>{
+            emailUser(user)
+          })
+
+          queries.updateSensorSafe(db, {id: sensor.id, safe: false})
+        }
       })
       .catch((err)=>{
         console.log(chalk.inverse(err));
       });
 
+    } else if(!sensor.safe){
+      //Set The sensor back to safe if it previously wasn't
+      queries.updateSensorSafe(db, {id: sensor.id, safe: true})
     }
   })
   .catch((err)=>{
