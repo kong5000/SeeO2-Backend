@@ -4,6 +4,7 @@ const selectAllSensors = require('./queries/3_selectAllSensors');
 const insertSensorData = require('./queries/4_insertSensorData');
 const updateSensorSafe = require('./queries/5_updateSensorSafe.js');
 const insertAlert = require('./queries/6_insertAlert.js');
+const insertSensor = require('./queries/7_insertSensor.js');
 
 module.exports = {
   selectAllSensors,
@@ -11,5 +12,6 @@ module.exports = {
   selectSensorData,
   insertSensorData,
   updateSensorSafe,
-  insertAlert
+  insertAlert,
+  insertSensor
 }

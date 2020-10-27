@@ -51,9 +51,30 @@ io.on('connect', (socket)=>{
       socket.emit('alertCreated', `OOOOOH NOOOO!!!!!!\n${err}`);
     })
   })
+
+  //Create a new sensor
+  socket.on('newSensor', (data)=>{
+    console.log(data)
+    axios.get(data.url)
+    .then((res)=>{
+      const data = res.data;
+      //Check if the url they've entered is valid
+      if(data.co2 === undefined || data.tvoc === undefined){
+        socket.emit('alertCreated', `The url you've entered does not seem to be returning the correct data`);
+      } else {
+        queries.insertSensor(db, {email: data.email, name: data.name, url: data.url, latitude: data.latitude, longitude: data.longitude})
+        .then(() =>{
+          console.log('YEES');
+          socket.emit('alertCreated', "You've successfully connected your sensor to our server and helped us reach global conquest");
+        })
+      }
+    })
+    .catch((err)=>{
+      console.log(err)
+      socket.emit('alertCreated', `Hmmm... seems like we couldn't connect to your sensor server. This could be caused by the server being down or being entered incorrectly`);
+    })
+  })
 })
-
-
 
 //Get latest sensor reading
 //Hard coded switch statement will work for small number of arduinos. Need to refactor if registering new sensor stretch goal is desired.
@@ -138,7 +159,7 @@ const querySensor = async (sensor)=>{
       queries.selectSensorAlerts(db, {sensors_id: sensor.id})
       .then((response)=>{
         //Will email users if they haven't been already
-        if(sensor.safe){
+        if(sensor.safe === true){
           response.forEach((user)=>{
             emailUser(user)
           })
@@ -150,7 +171,7 @@ const querySensor = async (sensor)=>{
         console.log(chalk.inverse(err));
       });
 
-    } else if(!sensor.safe){
+    } else if(sensor.safe === false){
       //Set The sensor back to safe if it previously wasn't
       queries.updateSensorSafe(db, {id: sensor.id, safe: true})
     }
