@@ -23,6 +23,7 @@ const io = require('socket.io')(8002);
 
 const PORT = 8001;
 
+//When a client connects
 io.on('connect', (socket)=>{
 
   console.log('SENDING INFO TO KNEW FREND :)');
@@ -30,7 +31,16 @@ io.on('connect', (socket)=>{
   .then((response)=>{
     socket.emit("SendSensors",response);
   })
+  //When Frontend wants historical data for a sensor
+  socket.on('getHistoricalData', (data)=>{
+    queries.selectSensorData(db, {sensors_id: data})
+    .then((response)=>{
+      socket.emit('receiveHistoricalData', response);
+    })
+  })
 })
+
+
 
 //Get latest sensor reading
 //Hard coded switch statement will work for small number of arduinos. Need to refactor if registering new sensor stretch goal is desired.
