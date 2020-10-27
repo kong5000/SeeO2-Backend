@@ -31,11 +31,24 @@ io.on('connect', (socket)=>{
   .then((response)=>{
     socket.emit("SendSensors",response);
   })
+
   //When Frontend wants historical data for a sensor
   socket.on('getHistoricalData', (data)=>{
     queries.selectSensorData(db, {sensors_id: data})
     .then((response)=>{
       socket.emit('receiveHistoricalData', response);
+    })
+  })
+
+  //Create a new email alert
+  socket.on('newAlert', (data)=>{
+    console.log(data)
+    queries.insertAlert(db, {email: data.email, sensors_id: data.sensors_id})
+    .then((response)=>{
+      socket.emit('alertCreated', 'And so begins a contract bound in blood...');
+    })
+    .catch((err)=>{
+      socket.emit('alertCreated', `OOOOOH NOOOO!!!!!!\n${err}`);
     })
   })
 })
