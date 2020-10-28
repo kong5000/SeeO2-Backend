@@ -54,6 +54,9 @@ io.on('connect', (socket)=>{
 
   //Create a new sensor
   socket.on('newSensor', (sensorData)=>{
+
+    
+
     axios.get(sensorData.url)
     .then((res)=>{
       const data = res.data;
@@ -61,12 +64,12 @@ io.on('connect', (socket)=>{
       if(data.co2 === undefined && data.pm25 === undefined){
         socket.emit('alertCreated', `The url you've entered does not seem to be returning the correct data`);
       } else {
-        // queries.insertSensor(db, {email: data.email, name: data.name, url: data.url, latitude: data.latitude, longitude: data.longitude})
-        // .then(() =>{
-        //   console.log('YEES');
-        //   socket.emit('alertCreated', "You've successfully connected your sensor to our server and helped us reach global conquest");
-        // })
-        newSensorEmail(sensorData);
+        queries.insertSensor(db, {email: '', name: '', url: sensorData.url, latitude: 0, longitude: 0})
+        .then((response) =>{
+          socket.emit('alertCreated', `An email has been sent with a link to confirm your sensor`);
+          console.log(response)
+          newSensorEmail(sensorData, response)
+        })
       }
     })
     .catch((err)=>{
@@ -135,8 +138,9 @@ app.get("/alerts/:users_id/remove/", async (req, res) =>{
   })
 })
 
+//Update Sensor Data
 app.get("/sensors/:users_id/update/:id/:name/:url/:latitude/:longitude", async (req, res) =>{
-  options = {name: '', url: '', latitude: 0, longitude: 0}
+  options = {name: '', url: '', latitude: 0, longitude: 0, id: req.params.id}
   req.params.name !== "null" ? options.name = req.params.name : delete options.name
   req.params.url !== "null" ? options.url = req.params.url : delete options.url
   req.params.latitude !== "null" ? options.latitude = req.params.latitude : delete options.latitude
@@ -231,7 +235,7 @@ const emailUser = (user)=>{
   });
 }
 
-const newSensorEmail = (sensor) => {
+const newSensorEmail = (sensor, sensorIds) => {
   const mailOptions = {
     from: 'SeeO2AirQuality@gmail.com',
     to: sensor.email,
@@ -248,7 +252,7 @@ const newSensorEmail = (sensor) => {
 
       <a 
       style="background-color: #163d5f; color: lightblue; border-radius: 5px; border: 5px solid #163d5f; margin-left: 40px; font-size: 1em; cursor: pointer; text-decoration: none"
-      href="google.com">
+      href="http://localhost:8001/sensors/${sensorIds.users_id}/update/${sensorIds.sensors_id}/${sensor.name}/null/${sensor.latitude}/${sensor.longitude}">
         Confirm
       </a>
 
