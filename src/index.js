@@ -84,28 +84,32 @@ app.get("/:id", async (req, res) => {
   switch (id) {
     case "1":
       sensorServerURL = "https://arduinokeith123.loca.lt"
+      return res.json({name: "Keith Arduino", pm25 : 10})
       break;
     case "2":
       sensorServerURL = "https://arduinomark123.loca.lt"
+      return res.json({name: "Mark Arduino", pm25 : 11})
       break;
     case "3":
       sensorServerURL = "https://arduinojayden123.loca.lt"
+      return res.json({name: "Jayden Arduino", pm25 : 12})
       break;
     default:
       return res.status(400).send({
         message: `No sensor with id ${id} found`
       })
   }
-  try{
-    const sensorResponse = await axios.get(sensorServerURL, { timeout: 3000 })
-    console.log(sensorResponse.data)
-    res.send(sensorResponse.data)
-  }catch(e){
-    res.status(400).send({
-      message: 'Could not connect to sensor server'
-    })
-    console.log(e.message)
-  }
+
+  // try{
+  //   const sensorResponse = await axios.get(sensorServerURL, { timeout: 3000 })
+  //   console.log(sensorResponse.data)
+  //   res.send(sensorResponse.data)
+  // }catch(e){
+  //   res.status(400).send({
+  //     message: 'Could not connect to sensor server'
+  //   })
+  //   console.log(e.message)
+  // }
 });
 
 //Get historical sensor data
