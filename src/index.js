@@ -85,6 +85,7 @@ const sensorURLs = {
   sensor3 :"https://arduinojayden123.loca.lt"
 }
 
+//Override the default urls, sensor server will post here and update sensorURLs object with the ngrok url
 app.post("/", async (req,res) => {
   console.log(req.body)
   const id = req.body.id;
