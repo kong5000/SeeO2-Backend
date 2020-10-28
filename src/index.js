@@ -144,9 +144,9 @@ const querySensor = async (sensor)=>{
     //Insert the response data to the database
     console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
 
-    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc})
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc, pm25: sensorResponse.data.pm25 || null})
     .then((response)=>{
-      console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)}\n`))
+      console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)} Pm25:${chalk.inverse(sensorResponse.data.pm25)}\n`))
     })
     .catch((err)=>{
       console.log(chalk.red(`Failed inserting data:\n-----Response:-----\n ${err}\n`));
@@ -181,7 +181,7 @@ const querySensor = async (sensor)=>{
   })
 }
 
-//Email users taht the co2 levels are bad
+//Email users that the co2 levels are bad
 const emailUser = (user)=>{
   const mailOptions = {
     from: 'SeeO2AirQuality@gmail.com',
