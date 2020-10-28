@@ -135,6 +135,18 @@ app.get("/alerts/:users_id/remove/", async (req, res) =>{
   })
 })
 
+app.get("/sensors/:users_id/update/:id/:name/:url/:latitude/:longitude", async (req, res) =>{
+  options = {name: '', url: '', latitude: 0, longitude: 0}
+  req.params.name !== "null" ? options.name = req.params.name : delete options.name
+  req.params.url !== "null" ? options.url = req.params.url : delete options.url
+  req.params.latitude !== "null" ? options.latitude = req.params.latitude : delete options.latitude
+  req.params.longitude !== "null" ? options.longitude = req.params.longitude : delete options.longitude
+  queries.updateSensorInfo(db, options)
+  .then(()=>{
+    res.redirect('http://localhost:3002')
+  })
+})
+
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}!\n`)
 
@@ -157,6 +169,7 @@ const querySensor = async (sensor)=>{
   
   axios.get(sensor.url, { timeout: 3000 })
   .then((sensorResponse)=>{
+
     //Insert the response data to the database
     console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
 
@@ -204,7 +217,6 @@ const emailUser = (user)=>{
     to: user.email,
     subject: 'Air quality has dropped',
     html: `
-    <h1>BAD AIR</h1>
     <p>You air is not quality :(</p>
     <a href="http://localhost:8001/alerts/${user.users_id}/remove/${user.sensors_id}">I don't want this alert anymore</a>
     <a href="http://localhost:8001/alerts/${user.users_id}/remove/">I don't want any alerts ever again</a>
