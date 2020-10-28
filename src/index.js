@@ -2,6 +2,8 @@ require('dotenv').config()
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser")
+app.use(bodyParser.json())
+
 const axios = require("axios")
 const { Pool } = require('pg');
 const db = new Pool({
@@ -76,6 +78,33 @@ io.on('connect', (socket)=>{
   })
 })
 
+//Default urls, will be overriden if the backend receives the appropriate post request
+const sensorURLs = {
+  sensor1 : "https://arduinokeith123.loca.lt",
+  sensor2 : "https://arduinomark123.loca.lt",
+  sensor3 :"https://arduinojayden123.loca.lt"
+}
+
+app.post("/", async (req,res) => {
+  console.log(req.body)
+  const id = req.body.id;
+  const url = req.body.url;
+  switch(id){
+    case 1:
+      sensorURLs.sensor1 = url
+    break
+    case 2:
+      sensorURLs.sensor2 = url
+    break
+    case 3:
+      sensorURLs.sensor3 = url
+    break
+    default:
+  }
+  console.log(sensorURLs)
+})
+
+
 //Get latest sensor reading
 //Hard coded switch statement will work for small number of arduinos. Need to refactor if registering new sensor stretch goal is desired.
 app.get("/:id", async (req, res) => {
@@ -83,13 +112,13 @@ app.get("/:id", async (req, res) => {
   let sensorServerURL = ""
   switch (id) {
     case "1":
-      sensorServerURL = "https://arduinokeith123.loca.lt"
+      sensorServerURL = sensorURLs.sensor1
       break;
     case "2":
-      sensorServerURL = "https://arduinomark123.loca.lt"
+      sensorServerURL = sensorURLs.sensor2
       break;
     case "3":
-      sensorServerURL = "https://arduinojayden123.loca.lt"
+      sensorServerURL = sensorURLs.sensor3
       break;
     default:
       return res.status(400).send({
