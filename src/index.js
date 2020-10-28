@@ -53,20 +53,20 @@ io.on('connect', (socket)=>{
   })
 
   //Create a new sensor
-  socket.on('newSensor', (data)=>{
-    console.log(data)
-    axios.get(data.url)
+  socket.on('newSensor', (sensorData)=>{
+    axios.get(sensorData.url)
     .then((res)=>{
       const data = res.data;
       //Check if the url they've entered is valid
-      if(data.co2 === undefined || data.tvoc === undefined){
+      if(data.co2 === undefined && data.pm25 === undefined){
         socket.emit('alertCreated', `The url you've entered does not seem to be returning the correct data`);
       } else {
-        queries.insertSensor(db, {email: data.email, name: data.name, url: data.url, latitude: data.latitude, longitude: data.longitude})
-        .then(() =>{
-          console.log('YEES');
-          socket.emit('alertCreated', "You've successfully connected your sensor to our server and helped us reach global conquest");
-        })
+        // queries.insertSensor(db, {email: data.email, name: data.name, url: data.url, latitude: data.latitude, longitude: data.longitude})
+        // .then(() =>{
+        //   console.log('YEES');
+        //   socket.emit('alertCreated', "You've successfully connected your sensor to our server and helped us reach global conquest");
+        // })
+        newSensorEmail(sensorData);
       }
     })
     .catch((err)=>{
@@ -173,7 +173,7 @@ const querySensor = async (sensor)=>{
     //Insert the response data to the database
     console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
 
-    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2, tvoc: sensorResponse.data.tvoc, pm25: sensorResponse.data.pm25 || null})
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25 || null})
     .then((response)=>{
       console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)} Pm25:${chalk.inverse(sensorResponse.data.pm25)}\n`))
     })
@@ -225,6 +225,51 @@ const emailUser = (user)=>{
   transporter.sendMail(mailOptions, (error, info)=>{
     if (error) {
       console.log(chalk.red(`Failed to send email to ${chalk.inverse(user.email)} \n-----Response-----\n ${error}`));
+    } else {
+      console.log('Email sent: ' + chalk.inverse(info.response));
+    }
+  });
+}
+
+const newSensorEmail = (sensor) => {
+  const mailOptions = {
+    from: 'SeeO2AirQuality@gmail.com',
+    to: sensor.email,
+    subject: 'Confirm Sensor',
+    html: `
+    <div style="font-size: 1.5em; font-weught: 700; color: #163d5f; background-image: url('cid:unique@kreata.ee'); background-position: bottom; background-size: 75%; padding: 20px;">
+      <p>Please confirm that the information below is correct and click the button to add your sensor!</p>
+      <ul>
+        <li>Name: ${sensor.name}</li>
+        <li>Url: ${sensor.url}</li>
+        <li>Latitude: ${sensor.latitude}</li>
+        <li>Longitude: ${sensor.longitude}</li>
+      </ul>
+
+      <a 
+      style="background-color: #163d5f; color: lightblue; border-radius: 5px; border: 5px solid #163d5f; margin-left: 40px; font-size: 1em; cursor: pointer; text-decoration: none"
+      href="google.com">
+        Confirm
+      </a>
+
+      <div style="background-image: url('cid:word@drow.ee'); width: 400px; height: 167px;">
+      </div>
+    </div>
+    `,
+    attachments: [{
+      filename: 'background.png',
+      path: 'http://localhost:3002/static/media/cloud_background.1254c655.jpg',
+      cid: 'unique@kreata.ee'
+    },
+    {
+      filename: 'logo.png',
+      path: 'http://localhost:3002/static/media/SeeO2_logo.4b3d866c.png',
+      cid: 'word@drow.ee'
+    }]
+  };
+  transporter.sendMail(mailOptions, (error, info)=>{
+    if (error) {
+      console.log(chalk.red(`Failed to send email to ${chalk.inverse(sensor.email)} \n-----Response-----\n ${error}`));
     } else {
       console.log('Email sent: ' + chalk.inverse(info.response));
     }
