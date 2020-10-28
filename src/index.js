@@ -117,6 +117,22 @@ app.get("/:id/history", async (req, res) => {
   .catch((err)=>{
     res.send(err)
   })
+});
+
+//Un-subscribe from an alert
+app.get("/alerts/:users_id/remove/:sensors_id", async (req, res) =>{
+  queries.deleteAlert(db, {sensors_id: req.params.sensors_id, users_id: req.params.users_id})
+  .then(()=>{
+    res.redirect('http://localhost:3002')
+  })
+})
+
+//Un-subscribe from all alerts for a user
+app.get("/alerts/:users_id/remove/", async (req, res) =>{
+  queries.deleteAllAlerts(db, {users_id: req.params.users_id})
+  .then(()=>{
+    res.redirect('http://localhost:3002')
+  })
 })
 
 app.listen(PORT, async () => {
@@ -187,7 +203,12 @@ const emailUser = (user)=>{
     from: 'SeeO2AirQuality@gmail.com',
     to: user.email,
     subject: 'Air quality has dropped',
-    html: `<h1>BAD AIR</h1>`
+    html: `
+    <h1>BAD AIR</h1>
+    <p>You air is not quality :(</p>
+    <a href="http://localhost:8001/alerts/${user.users_id}/remove/${user.sensors_id}">I don't want this alert anymore</a>
+    <a href="http://localhost:8001/alerts/${user.users_id}/remove/">I don't want any alerts ever again</a>
+    `
   };
   transporter.sendMail(mailOptions, (error, info)=>{
     if (error) {
