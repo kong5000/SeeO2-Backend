@@ -7,6 +7,7 @@ const insertAlert = require('./queries/6_insertAlert.js');
 const insertSensor = require('./queries/7_insertSensor.js');
 const deleteAlert = require('./queries/8_deleteAlert');
 const deleteAllAlerts = require('./queries/9_deleteAllAlerts');
+const updateSensorInfo = require('./queries/10_updateSensorInfo.js');
 
 module.exports = {
   selectAllSensors,
@@ -17,5 +18,6 @@ module.exports = {
   insertAlert,
   insertSensor,
   deleteAlert,
-  deleteAllAlerts
+  deleteAllAlerts,
+  updateSensorInfo
 }
