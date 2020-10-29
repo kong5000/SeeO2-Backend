@@ -36,9 +36,9 @@ io.on('connect', (socket)=>{
 
   //When Frontend wants historical data for a sensor
   socket.on('getHistoricalData', (data)=>{
-    queries.selectSensorData(db, {sensors_id: data})
+    queries.selectSensorData(db, {sensors_id: data.id})
     .then((response)=>{
-      socket.emit('receiveHistoricalData', response);
+      socket.emit('receiveHistoricalData', {data: response, offset: (data.offset + 1)});
     })
   })
 
@@ -56,8 +56,6 @@ io.on('connect', (socket)=>{
 
   //Create a new sensor
   socket.on('newSensor', (sensorData)=>{
-
-    
 
     axios.get(sensorData.url)
     .then((res)=>{
