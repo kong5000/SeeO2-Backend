@@ -1,8 +1,9 @@
 const selectSensorData = (db, options) => {
   return db.query(`
-    SELECT * FROM sensors
+    SELECT *, TO_CHAR(sensor_data.date, 'Month, DD, HH12:MI') as date FROM sensors
     JOIN sensor_data ON sensors.id = sensor_data.sensors_id
     WHERE sensors.id = $1
+    ORDER BY sensor_data.date DESC
     LIMIT 250;
   `, [options.sensors_id])
   .then((res) => res.rows)

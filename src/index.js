@@ -208,7 +208,7 @@ const querySensor = async (sensor)=>{
     //Insert the response data to the database
     console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
 
-    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25 || null})
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25})
     .then((response)=>{
       console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)} Pm25:${chalk.inverse(sensorResponse.data.pm25)}\n`))
     })
