@@ -81,9 +81,9 @@ io.on('connect', (socket)=>{
 
 //Default urls, will be overriden if the backend receives the appropriate post request
 const sensorURLs = {
-  sensor1 : "https://arduinokeith123.loca.lt",
-  sensor2 : "https://arduinomark123.loca.lt",
-  sensor3 :"https://arduinojayden123.loca.lt"
+  Keith : "https://arduinokeith123.loca.lt",
+  Mark : "https://arduinomark123.loca.lt",
+  Jayden :"https://arduinojayden123.loca.lt"
 }
 
 //Override the default urls, sensor server will post here and update sensorURLs object with the ngrok url
@@ -92,14 +92,14 @@ app.post("/", async (req,res) => {
   const id = req.body.id;
   const url = req.body.url;
   switch(id){
-    case 1:
-      sensorURLs.sensor1 = url
+    case '1':
+      sensorURLs.Keith = url
     break
-    case 2:
-      sensorURLs.sensor2 = url
+    case '2':
+      sensorURLs.Mark = url
     break
-    case 3:
-      sensorURLs.sensor3 = url
+    case '3':
+      sensorURLs.Jayden = url
     break
     default:
   }
@@ -193,18 +193,22 @@ app.listen(PORT, async () => {
         querySensor(sensor);
       });
     })
-  }, 600000)
+  }, 6000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
 const querySensor = async (sensor)=>{
-  console.log(`Connecting to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}...\n`)
-  
-  axios.get(sensor.url, { timeout: 3000 })
+  let url = sensor.url
+  if(sensorURLs[sensor.name] !== sensor.url){
+    url = sensorURLs[sensor.name]
+  }
+  console.log(`Connecting to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(url)}...\n`)
+  console.log("id",sensor.id)
+  axios.get(url, { timeout: 3000 })
   .then((sensorResponse)=>{
 
     //Insert the response data to the database
-    console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
+    console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(url)}. Querying and inserting data...\n`));
 
     queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25, pm10: sensorResponse.data.pm10})
     .then((response)=>{
