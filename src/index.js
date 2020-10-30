@@ -193,7 +193,7 @@ app.listen(PORT, async () => {
         querySensor(sensor);
       });
     })
-  }, 600000)
+  }, 6000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -206,17 +206,17 @@ const querySensor = async (sensor)=>{
     //Insert the response data to the database
     console.log(chalk.green(`Successfully connected to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}. Querying and inserting data...\n`));
 
-    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25})
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25, pm10: sensorResponse.data.pm10})
     .then((response)=>{
-      console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)} Pm25:${chalk.inverse(sensorResponse.data.pm25)}\n`))
+      console.log(chalk.green(`Successfully inserted data for ${chalk.inverse(sensor.name)}'s sensor: Co2:${chalk.inverse(sensorResponse.data.co2)} Tvoc:${chalk.inverse(sensorResponse.data.tvoc)} Pm25:${chalk.inverse(sensorResponse.data.pm25)} Pm10:${chalk.inverse(sensorResponse.data.pm10)}\n`))
     })
     .catch((err)=>{
       console.log(chalk.red(`Failed inserting data:\n-----Response:-----\n ${err}\n`));
     })
-
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25, pm10: sensorResponse.data.pm10})
     //If the co2 level is to high, alert users
-    if(sensorResponse.data.co2 > 400){
-      console.log(chalk.yellow(`Co2 levels to high for ${chalk.inverse(sensor.name)}'s senser, alerting users...`));
+    if(sensorResponse.data.pm25 > 35){
+      console.log(chalk.yellow(`Pm25 levels to high for ${chalk.inverse(sensor.name)}'s senser, alerting users...`));
 
       queries.selectSensorAlerts(db, {sensors_id: sensor.id})
       .then((response)=>{
@@ -239,7 +239,8 @@ const querySensor = async (sensor)=>{
     }
   })
   .catch((err)=>{
-    console.log(chalk.red(`Failed to connect to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}\n-----Response:-----\n ${err}\n`));
+    console.log(chalk.red(`Failed to connect to ${chalk.inverse(sensor.name)}'s sensor at ${chalk.inverse(sensor.url)}\n-----Response:-----\n ${err}\nInserting empty data...\n`));
+    queries.insertSensorData(db, {sensors_id: sensor.id, co2: -99, tvoc: -99, pm25: -99, pm10: -99});
   })
 }
 
