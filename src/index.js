@@ -193,7 +193,7 @@ app.listen(PORT, async () => {
         querySensor(sensor);
       });
     })
-  }, 6000)
+  }, 600000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
