@@ -57,6 +57,7 @@ io.on('connect', (socket)=>{
   //Create a new sensor
   socket.on('newSensor', (sensorData)=>{
 
+    console.log(sensorData)
     axios.get(sensorData.url)
     .then((res)=>{
       const data = res.data;
@@ -217,7 +218,9 @@ const querySensor = async (sensor)=>{
     .catch((err)=>{
       console.log(chalk.red(`Failed inserting data:\n-----Response:-----\n ${err}\n`));
     })
+
     queries.insertSensorData(db, {sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25, pm10: sensorResponse.data.pm10})
+
     //If the co2 level is to high, alert users
     if(sensorResponse.data.pm25 > 35){
       console.log(chalk.yellow(`Pm25 levels to high for ${chalk.inverse(sensor.name)}'s senser, alerting users...`));
@@ -227,7 +230,7 @@ const querySensor = async (sensor)=>{
         //Will email users if they haven't been already
         if(sensor.safe === true){
           response.forEach((user)=>{
-            emailUser(user)
+            emailUser(user, sensor)
           })
 
           queries.updateSensorSafe(db, {id: sensor.id, safe: false})
@@ -249,16 +252,33 @@ const querySensor = async (sensor)=>{
 }
 
 //Email users that the co2 levels are bad
-const emailUser = (user)=>{
+const emailUser = (user, sensor)=>{
   const mailOptions = {
     from: 'SeeO2AirQuality@gmail.com',
     to: user.email,
     subject: 'Air quality has dropped',
     html: `
-    <p>You air is not quality :(</p>
-    <a href="http://localhost:8001/alerts/${user.users_id}/remove/${user.sensors_id}">I don't want this alert anymore</a>
-    <a href="http://localhost:8001/alerts/${user.users_id}/remove/">I don't want any alerts ever again</a>
-    `
+    <div style="font-size: 1.5em; font-weught: 700; color: #163d5f; background-image: url('cid:unique@kreata.ee'); background-position: bottom; background-size: 75%; padding: 20px;">
+      <p>The air quality at <strong>${sensor.name}'s</strong> sensor is unsafe. The latest reading at the time of this email is <strong>PM25: ${sensor.pm25}</strong>. Please keep an eye on our website for further information.</p>
+      <br>
+      <a style="font-size: 0.5em" href="http://localhost:8001/alerts/${user.users_id}/remove/${user.sensors_id}">Stop receiving alerts for this sensor</a>
+      <br>
+      <a style="font-size: 0.5em" href="http://localhost:8001/alerts/${user.users_id}/remove/">Stop receiving all alerts</a>
+
+      <div style="background-image: url('cid:word@drow.ee'); width: 400px; height: 167px;">
+      </div>
+    </div>
+    `,
+    attachments: [{
+      filename: 'background.png',
+      path: 'http://localhost:3002/static/media/cloud_background.1254c655.jpg',
+      cid: 'unique@kreata.ee'
+    },
+    {
+      filename: 'logo.png',
+      path: 'http://localhost:3002/static/media/SeeO2_logo.4b3d866c.png',
+      cid: 'word@drow.ee'
+    }]
   };
   transporter.sendMail(mailOptions, (error, info)=>{
     if (error) {
