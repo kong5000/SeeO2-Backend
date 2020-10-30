@@ -103,7 +103,7 @@ app.post("/", async (req,res) => {
     break
     default:
   }
-  res.json({message: `Succesfully registered ngrok url ${url} to sensor id ${id}`})
+  res.json({message: `Succesfully registered url ${url} to sensor id ${id}`})
   console.log(sensorURLs)
 })
 
