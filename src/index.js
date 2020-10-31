@@ -36,9 +36,9 @@ io.on('connect', (socket)=>{
 
   //When Frontend wants historical data for a sensor
   socket.on('getHistoricalData', (data)=>{
-    queries.selectSensorData(db, {sensors_id: data.id})
+    queries.selectSensorData(db, {sensors_id: data.id, timezone: data.timezone})
     .then((response)=>{
-      socket.emit('receiveHistoricalData', {data: response, offset: (data.offset + 1)});
+      socket.emit('receiveHistoricalData', {data: response, offset: (data.offset + 1), timezone: data.timezone});
     })
   })
 
