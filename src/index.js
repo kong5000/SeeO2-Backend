@@ -21,9 +21,9 @@ const transporter = nodeMailer.createTransport({
   }
 });
 const chalk = require('chalk');
-const io = require('socket.io')(8002);
+const io = require('socket.io')('https://see-o2-backend.herokuapp.com');
 
-const PORT = 8001;
+const PORT = process.env.PORT || 8001;
 
 //When a client connects
 io.on('connect', (socket)=>{
