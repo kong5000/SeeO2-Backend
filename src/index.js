@@ -142,7 +142,7 @@ const server = app.listen(process.env.PORT || 8001, async () => {
           querySensor(sensor);
         });
       })
-  }, 6000)
+  }, 600000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -301,9 +301,9 @@ io.on('connect', (socket) => {
 
   //When Frontend wants historical data for a sensor
   socket.on('getHistoricalData', (data) => {
-    queries.selectSensorData(db, { sensors_id: data.id, timezone: data.timezone })
+    queries.selectSensorData(db, { sensors_id: data.id, timezoneOffset: data.timezoneOffset })
       .then((response) => {
-        socket.emit('receiveHistoricalData', { data: response, offset: (data.offset + 1), timezone: data.timezone });
+        socket.emit('receiveHistoricalData', { data: response, offset: (data.offset + 1), timezone: data.timezone, timezoneOffset: data.timezoneOffset });
       })
   })
 
