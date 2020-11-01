@@ -167,8 +167,6 @@ const querySensor = async (sensor) => {
           console.log(chalk.red(`Failed inserting data:\n-----Response:-----\n ${err}\n`));
         })
 
-      queries.insertSensorData(db, { sensors_id: sensor.id, co2: sensorResponse.data.co2 || -99, tvoc: sensorResponse.data.tvoc || -99, pm25: sensorResponse.data.pm25, pm10: sensorResponse.data.pm10 })
-
       //If the co2 level is to high, alert users
       if (sensorResponse.data.pm25 > 35) {
         console.log(chalk.yellow(`Pm25 levels to high for ${chalk.inverse(sensor.name)}'s senser, alerting users...`));
