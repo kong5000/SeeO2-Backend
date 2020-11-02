@@ -303,7 +303,7 @@ io.on('connect', (socket) => {
   socket.on('getHistoricalData', (data) => {
     queries.selectSensorData(db, { sensors_id: data.id, timezoneOffset: data.timezoneOffset })
       .then((response) => {
-        socket.emit('receiveHistoricalData', { data: response, offset: (data.offset + 1), timezone: data.timezone, timezoneOffset: data.timezoneOffset });
+        socket.emit('receiveHistoricalData', { data: response, offset: data.offset, timezone: data.timezone, timezoneOffset: data.timezoneOffset, dataView: data.dataView });
       })
   })
 
