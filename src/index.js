@@ -6,10 +6,13 @@ const bodyParser = require("body-parser")
 app.use(bodyParser.json())
 const axios = require("axios")
 const chalk = require('chalk');
+// const { Pool } = require('pg');
+// const db = new Pool({
+//   connectionString: process.env.DB_URL
+// })
 const { Pool } = require('pg');
-const db = new Pool({
-  connectionString: process.env.DB_URL
-})
+const dbParams = require('../lib/db.js');
+const db = new Pool(dbParams);
 db.connect()
 const queries = require('../db/query');
 const { response } = require('express');
