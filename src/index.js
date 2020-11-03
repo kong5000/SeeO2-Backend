@@ -6,6 +6,8 @@ const bodyParser = require("body-parser")
 app.use(bodyParser.json())
 const axios = require("axios")
 const chalk = require('chalk');
+const localtunnel = require('localtunnel');
+
 // const { Pool } = require('pg');
 // const db = new Pool({
 //   connectionString: process.env.DB_URL
@@ -135,6 +137,8 @@ app.get("/sensors/:users_id/update/:id/:name/:url/:latitude/:longitude", async (
 })
 
 const server = app.listen(process.env.PORT || 8001, async () => {
+
+  establishLocaltunnelConnection();
   //Find and query all sensors every ten minutes
   const queryTimer = setInterval(() => {
     queries.selectAllSensors(db)
@@ -145,7 +149,7 @@ const server = app.listen(process.env.PORT || 8001, async () => {
           querySensor(sensor);
         });
       })
-  }, 3000)
+  }, 600000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -295,14 +299,6 @@ if (args.includes("online")){
 
 //When a client connects
 io.on('connect', (socket) => {
-
-  setInterval(() => {
-    queries.selectAllSensors(db)
-    .then((response) => {
-      socket.emit("SendSensors", response);
-    })
-  }, 3010);
-
   console.log('SENDING INFO TO KNEW FREND :)');
   queries.selectAllSensors(db)
     .then((response) => {
@@ -354,3 +350,32 @@ io.on('connect', (socket) => {
       })
   })
 })
+
+
+const establishLocaltunnelConnection = async () => {
+  try {
+    const tunnel = await localtunnel({ port: process.env.PORT || 8001, subdomain: 'seeo2-backup-backend' });
+    console.log(`localtunnel url is : ${tunnel.url}\n`)
+
+    tunnel.on('close', () => {
+      // tunnels are closed
+    });
+
+    tunnel.on('error', async (err) => {
+      console.log(err)
+    });
+
+    const response = await axios({
+      method: 'post',
+      url: BACKEND_URL,
+      data: {
+        url: tunnel.url,
+        id: process.env.SENSOR_ID
+      }
+    });
+    console.log(response.data)
+  } catch (e) {
+    console.log(e.message)
+    console.log(`Expected SeeO2 backend to be running on ${BACKEND_URL}`)
+  }
+}
