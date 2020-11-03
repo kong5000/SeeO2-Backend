@@ -224,12 +224,12 @@ const emailUser = (user, sensor) => {
     `,
     attachments: [{
       filename: 'background.png',
-      path: 'http://localhost:3000/static/media/cloud_background.1254c655.jpg',
+      path: 'images/cloud_background.1254c655.jpg',
       cid: 'unique@kreata.ee'
     },
     {
       filename: 'logo.png',
-      path: 'http://localhost:3000/static/media/SeeO2_logo.4b3d866c.png',
+      path: 'images/SeeO2_logo.4b3d866c.png',
       cid: 'word@drow.ee'
     }]
   };
