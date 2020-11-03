@@ -142,7 +142,7 @@ const server = app.listen(process.env.PORT || 8001, async () => {
           querySensor(sensor);
         });
       })
-  }, 600000)
+  }, 3000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -292,6 +292,13 @@ if (args.includes("online")){
 
 //When a client connects
 io.on('connect', (socket) => {
+
+  setInterval(() => {
+    queries.selectAllSensors(db)
+    .then((response) => {
+      socket.emit("SendSensors", response);
+    })
+  }, 3010);
 
   console.log('SENDING INFO TO KNEW FREND :)');
   queries.selectAllSensors(db)
