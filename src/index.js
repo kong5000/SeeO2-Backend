@@ -149,7 +149,7 @@ const server = app.listen(process.env.PORT || 8001, async () => {
           querySensor(sensor);
         });
       })
-  }, 600000)
+  }, 3000)
 });
 
 //Function that queries a sensor, inserts data if connected, and emails users if co2 levels are to high
@@ -224,12 +224,12 @@ const emailUser = (user, sensor) => {
     `,
     attachments: [{
       filename: 'background.png',
-      path: 'http://localhost:3002/static/media/cloud_background.1254c655.jpg',
+      path: 'http://localhost:3000/static/media/cloud_background.1254c655.jpg',
       cid: 'unique@kreata.ee'
     },
     {
       filename: 'logo.png',
-      path: 'http://localhost:3002/static/media/SeeO2_logo.4b3d866c.png',
+      path: 'http://localhost:3000/static/media/SeeO2_logo.4b3d866c.png',
       cid: 'word@drow.ee'
     }]
   };
