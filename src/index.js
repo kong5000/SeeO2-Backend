@@ -106,7 +106,7 @@ app.get("/:id/history", async (req, res) => {
 app.get("/alerts/:users_id/remove/:sensors_id", async (req, res) => {
   queries.deleteAlert(db, { sensors_id: req.params.sensors_id, users_id: req.params.users_id })
     .then(() => {
-      res.redirect('http://localhost:3002')
+      res.redirect('https://seeo2.herokuapp.com/')
     })
 })
 
@@ -114,7 +114,7 @@ app.get("/alerts/:users_id/remove/:sensors_id", async (req, res) => {
 app.get("/alerts/:users_id/remove/", async (req, res) => {
   queries.deleteAllAlerts(db, { users_id: req.params.users_id })
     .then(() => {
-      res.redirect('http://localhost:3002')
+      res.redirect('https://seeo2.herokuapp.com/')
     })
 })
 
@@ -127,7 +127,7 @@ app.get("/sensors/:users_id/update/:id/:name/:url/:latitude/:longitude", async (
   req.params.longitude !== "null" ? options.longitude = req.params.longitude : delete options.longitude
   queries.updateSensorInfo(db, options)
     .then(() => {
-      res.redirect('http://localhost:3002')
+      res.redirect('https://seeo2.herokuapp.com/')
     })
 })
 
@@ -262,12 +262,12 @@ const newSensorEmail = (sensor, sensorIds) => {
     `,
     attachments: [{
       filename: 'background.png',
-      path: 'http://localhost:3002/static/media/cloud_background.1254c655.jpg',
+      path: 'images/cloud_background.1254c655.jpg',
       cid: 'unique@kreata.ee'
     },
     {
       filename: 'logo.png',
-      path: 'http://localhost:3002/static/media/SeeO2_logo.4b3d866c.png',
+      path: 'images/SeeO2_logo.4b3d866c.png',
       cid: 'word@drow.ee'
     }]
   };
